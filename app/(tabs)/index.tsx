@@ -1,9 +1,14 @@
 import { StyleSheet } from "react-native";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 
 import { View } from "@/components/Themed";
+import * as Location from "expo-location";
 
 export default function TabOneScreen() {
+  Location.requestForegroundPermissionsAsync();
+
+  // navigator.geolocation.
+
   const INITIAL_REGION = {
     latitude: 4.710989,
     longitude: -74.07209,
@@ -30,6 +35,9 @@ export default function TabOneScreen() {
         toolbarEnabled={true}
         zoomEnabled={true}
         rotateEnabled={true}
+        userInterfaceStyle="dark"
+        // pointForCoordinate={}
+        // showsTraffic={true}
         // onMapReady={() => {
         //   PermissionsAndroid.request(
         //     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
@@ -37,7 +45,19 @@ export default function TabOneScreen() {
         //     alert(granted); // just to ensure that permissions were granted
         //   });
         // }}
-      />
+      >
+        <Marker
+          key={1}
+          coordinate={{
+            latitude: 4.710989,
+            longitude: -74.07209,
+            // latitudeDelta: 2,
+            // longitudeDelta: 2,
+          }}
+          title="sasd"
+          description="asdas"
+        />
+      </MapView>
     </View>
   );
 }
