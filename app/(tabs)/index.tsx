@@ -1,25 +1,46 @@
 import { StyleSheet } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { GOOGLE_PLACES_API_KEY } from "@/constants/GooglePlacesAPIKey";
 
 import { View } from "@/components/Themed";
 import * as Location from "expo-location";
+import { getCurrentLocation } from "@/helpers/getCurrentLocation";
+import { useEffect, useRef, useState } from "react";
 
 export default function TabOneScreen() {
   Location.requestForegroundPermissionsAsync();
 
-  // navigator.geolocation.
+  const mapRef = useRef();
+  const [coord, setCoord] = useState();
 
-  const INITIAL_REGION = {
-    latitude: 4.710989,
-    longitude: -74.07209,
-    latitudeDelta: 2,
-    longitudeDelta: 2,
+  const getLiveLocation = async () => {
+    const { latitude, longitude } = await getCurrentLocation();
+    setCoord((prevStatus) => ({
+      ...prevStatus,
+      latitude: latitude,
+      longitude: longitude,
+      latitudeDelta: 2,
+      longitudeDelta: 2,
+    }));
   };
+
+  useEffect(() => {
+    getLiveLocation();
+    console.log(GOOGLE_PLACES_API_KEY)
+  }, []);
+
+  // const INITIAL_REGION = {
+  //   latitude: 4.710989,
+  //   longitude: -74.07209,
+  //   latitudeDelta: 2,
+  //   longitudeDelta: 2,
+  // };
 
   return (
     <View style={styles.container}>
-      {/* <MapView /> */}
       <MapView
+        ref={mapRef}
         style={{ width: "100%", height: "100%" }}
         provider={PROVIDER_GOOGLE}
         region={{
@@ -28,7 +49,8 @@ export default function TabOneScreen() {
           latitudeDelta: 2,
           longitudeDelta: 2,
         }}
-        initialRegion={INITIAL_REGION}
+        // initialRegion={INITIAL_REGION}
+        initialRegion={coord}
         showsUserLocation={true}
         showsMyLocationButton={true}
         showsCompass={true}
@@ -46,17 +68,7 @@ export default function TabOneScreen() {
         //   });
         // }}
       >
-        <Marker
-          key={1}
-          coordinate={{
-            latitude: 4.710989,
-            longitude: -74.07209,
-            // latitudeDelta: 2,
-            // longitudeDelta: 2,
-          }}
-          title="sasd"
-          description="asdas"
-        />
+        {coord !== undefined && <Marker coordinate={coord} />}
       </MapView>
     </View>
   );
