@@ -13,6 +13,7 @@ export default function TabOneScreen() {
 
   const mapRef = useRef();
   const [coord, setCoord] = useState();
+  const [destination, setDestination] = useState();
 
   const getLiveLocation = async () => {
     const { latitude, longitude } = await getCurrentLocation();
@@ -27,7 +28,7 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     getLiveLocation();
-    console.log(GOOGLE_PLACES_API_KEY)
+    console.log(GOOGLE_PLACES_API_KEY);
   }, []);
 
   // const INITIAL_REGION = {
@@ -37,9 +38,72 @@ export default function TabOneScreen() {
   //   longitudeDelta: 2,
   // };
 
+  const moveToLocation = async (latitude, longitude) => {
+    mapRef.current.animateToRegion(
+      {
+        latitude,
+        longitude,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
+      },
+      2000
+    );
+  };
+
+  const handlerAddress = (details) => {
+    console.log(details);
+    let location = {
+      latitude: details?.geometry?.location.lat,
+      longitude: details?.geometry?.location.lng,
+    };
+    setDestination(location);
+    moveToLocation(location.latitude, location.longitude);
+  };
+
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          width: "90%",
+          height: 150,
+          zIndex: 100,
+          overflow: "visible",
+          flex: 1,
+          marginHorizontal: 10,
+          marginVertical: 5,
+          // backgroundColor: "red",
+        }}
+      >
+        <GooglePlacesAutocomplete
+          placeholder="Buscar lugar"
+          fetchDetails={true}
+          onPress={(data, details = null) => {
+            handlerAddress(details);
+          }}
+          query={{
+            key: GOOGLE_PLACES_API_KEY,
+            language: "es", // Opcional: establece el idioma
+          }}
+        />
+      </View>
       <MapView
+        ref={mapRef}
+        style={{ width: "100%", height: "80%" }}
+        provider={PROVIDER_GOOGLE}
+        initialRegion={coord}
+        region={{
+          latitude: 4.710989,
+          longitude: -74.07209,
+          latitudeDelta: 2,
+          longitudeDelta: 2,
+        }}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+      >
+        {coord !== undefined && <Marker coordinate={coord} />}
+        {destination !== undefined && <Marker coordinate={destination} />}
+      </MapView>
+      {/* <MapView
         ref={mapRef}
         style={{ width: "100%", height: "100%" }}
         provider={PROVIDER_GOOGLE}
@@ -53,11 +117,11 @@ export default function TabOneScreen() {
         initialRegion={coord}
         showsUserLocation={true}
         showsMyLocationButton={true}
-        showsCompass={true}
-        toolbarEnabled={true}
-        zoomEnabled={true}
-        rotateEnabled={true}
-        userInterfaceStyle="dark"
+        // showsCompass={true}
+        // toolbarEnabled={true}
+        // zoomEnabled={true}
+        // rotateEnabled={true}
+        // userInterfaceStyle="dark"
         // pointForCoordinate={}
         // showsTraffic={true}
         // onMapReady={() => {
@@ -69,7 +133,7 @@ export default function TabOneScreen() {
         // }}
       >
         {coord !== undefined && <Marker coordinate={coord} />}
-      </MapView>
+      </MapView> */}
     </View>
   );
 }
@@ -88,5 +152,12 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: "80%",
+  },
+  searchContainer: {
+    width: "100%",
+    zIndex: 1,
+    flex: 0.5,
+    marginHorizontal: 10,
+    marginVertical: 5,
   },
 });
